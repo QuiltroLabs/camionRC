@@ -1,9 +1,6 @@
-/* Carro Arduino com controle Bluetooth
- *    Código retirado do link abaixo:
- * http://www.instructables.com/id/Arduino-Bluetooth-RC-Car-Android-Controlled/?ALLSTEPS
- *    Conclusão e adaptações por Usinainfo:
- * http://www.usinainfo.com.br/
- */
+
+#include <SoftwareSerial.h>
+SoftwareSerial bt(7,8); //RX,TX
 
 // Define os pinos de utilização do Driver L298.
 const int motorB2  = 9;    // Pin  5 of L293.
@@ -33,21 +30,30 @@ void setup() {
 
   // Inicializa a comunicação serial em 9600 bits.
   Serial.begin(9600);
+  Serial.println("iniciando");
+  bt.begin(9600);
 }
 
 void loop() {
   // Para o carro quando a conexão com Bluetooth é perdida ou desconectada.
+  /*
   if (digitalRead(BTState) == LOW) {
     state_rec = 'S';
   }
-
+*/
   // Salva os valores da variável 'state'
+   if(bt.available()){    
+    state_rec = bt.read();
+    state = state_rec;
+    //Serial.write(state_rec);    
+  }
+  /*
   if (Serial.available() > 0) {
     state_rec = Serial.read();
     state = state_rec;
     //   Serial.println(vSpeed);
   }
-
+*/
   // Altera a velocidade de acordo com valores especificados.
   if (state == '0') {
     vSpeed = 0;
