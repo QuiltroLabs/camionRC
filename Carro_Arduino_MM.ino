@@ -1,26 +1,30 @@
 
+/*
+ * Este codigo esta realizado para la comunicacion con la siguiente app
+ * https://play.google.com/store/apps/details?id=braulio.calle.bluetoothRCcontroller&hl=es_AR&gl=US
+ * Bluetooth RC Controller
+ */
 #include <SoftwareSerial.h>
-SoftwareSerial bt(7,8); //RX,TX
+SoftwareSerial bt(7,8); //RX,TX para BT
 
-// Define os pinos de utilização do Driver L298.
-const int motorB2  = 9;    // Pin  5 of L293.
-const int motorB1  = 3;    // Pin  6 of L293.
-const int motorA2  = 11;   // Pin 10 of L293.
-const int motorA1  = 10;   // Pin 9 of L293.
+const int motorB2  = 9;    // Pin A-1A de L9110.
+const int motorB1  = 3;    // Pin A-1B de L9110.
+const int motorA2  = 11;   // Pin B-1B de L9110.
+const int motorA1  = 10;   // Pin B-1B de L9110.
 
-const int buzzer = 12 ;   // Define o Pino 13 como pino do Buzzer.
+const int buzzer = 12;   // PIN D12 para buzzer, a implementar
+const int LedAtras = 6; // PIN D6 para led atras, a implementar
+const int LedAdelante = 5; PIN D5 para led adelante, a implementar
 
-const int BTState = 2;    // Define o Pino 2 como o pino de comunicação do Bluetooth.
-
-// Variáveis Úteis
+//variables utiles
 int i = 0;
 int j = 0;
 int state_rec;
-int vSpeed = 200;   // Define velocidade padrão 0 < x < 255.
+int vSpeed = 200;   // Establezce la velocidad predeterminada 0 < x < 255.(200 default)
 char state;
 
 void setup() {
-  // Inicializa as portas como entrada e saída.
+  // Inicializar puertos como entrada y salida.
   pinMode(motorA1, OUTPUT);
   pinMode(motorA2, OUTPUT);
   pinMode(motorB1, OUTPUT);
@@ -28,33 +32,23 @@ void setup() {
   pinMode(buzzer, OUTPUT);
   pinMode(BTState, INPUT);
 
-  // Inicializa a comunicação serial em 9600 bits.
+  // Inicializa la comunicación serie a 9600 bits.
+  //Serial para pc y serial BT
   Serial.begin(9600);
   Serial.println("iniciando");
   bt.begin(9600);
 }
 
 void loop() {
-  // Para o carro quando a conexão com Bluetooth é perdida ou desconectada.
-  /*
-  if (digitalRead(BTState) == LOW) {
-    state_rec = 'S';
-  }
-*/
-  // Salva os valores da variável 'state'
+ 
+  // Guarda los valores de la variable 'state'
    if(bt.available()){    
     state_rec = bt.read();
     state = state_rec;
     //Serial.write(state_rec);    
   }
-  /*
-  if (Serial.available() > 0) {
-    state_rec = Serial.read();
-    state = state_rec;
-    //   Serial.println(vSpeed);
-  }
-*/
-  // Altera a velocidade de acordo com valores especificados.
+  
+ // Cambia la velocidad de acuerdo a los valores especificados.
   if (state == '0') {
     vSpeed = 0;
   }
@@ -81,70 +75,71 @@ void loop() {
     Serial.print(state);
   }
 
-  // Se o estado recebido for igual a 'F', o carro se movimenta para frente.
+  // Si el estado recibido es igual a 'F', el auto avanza.
   if (state == 'F') {
     analogWrite(motorB1, vSpeed);
     analogWrite(motorA1, vSpeed);
     analogWrite(motorA2, 0);
     analogWrite(motorB2, 0);
   }
-
-    else if (state == 'I') {  // Se o estado recebido for igual a 'I', o carro se movimenta para Frente Esquerda.
+// Si el estado recibido es igual a 'I', el automóvil se mueve hacia la parte delantera izquierda.
+    else if (state == 'I') {  
     analogWrite(motorA1, vSpeed); 
     analogWrite(motorA2, 0);
     analogWrite(motorB1, 100);    
     analogWrite(motorB2, 0);
   }
 
-    else if (state == 'G') {   // Se o estado recebido for igual a 'G', o carro se movimenta para Frente Direita.
+// Si el estado recibido es igual a 'G', el automóvil se mueve hacia la parte delantera derecha.
+    else if (state == 'G') {  
     analogWrite(motorA1, 100); 
     analogWrite(motorA2, 0);
     analogWrite(motorB1, vSpeed);      
     analogWrite(motorB2, 0);
   }
-
-  else if (state == 'B') { // Se o estado recebido for igual a 'B', o carro se movimenta para trás.
+// Si el estado recibido es igual a 'B', el auto se mueve hacia atrás.
+  else if (state == 'B') {
     analogWrite(motorA1, 0);
     analogWrite(motorB1, 0);
     analogWrite(motorB2, vSpeed);
     analogWrite(motorA2, vSpeed);
   }
-
-   else if (state == 'H') {  // Se o estado recebido for igual a 'H', o carro se movimenta para Trás Esquerda.
+// Si el estado recibido es igual a 'H', el automóvil se mueve hacia atrás a la izquierda.
+   else if (state == 'H') {  
     analogWrite(motorA1, 0);   
     analogWrite(motorA2, vSpeed);
     analogWrite(motorB1, 0); 
     analogWrite(motorB2, 100);
   }
-  
-  else if (state == 'J') {  // Se o estado recebido for igual a 'J', o carro se movimenta para Trás Direita.
+// Si el estado recibido es igual a 'J', el automóvil se mueve hacia atrás a la derecha.  
+  else if (state == 'J') {  
     analogWrite(motorA1, 0);   
     analogWrite(motorA2, 100);
     analogWrite(motorB1, 0);   
     analogWrite(motorB2, vSpeed);
   }
-
-  else if (state == 'L') {   // Se o estado recebido for igual a 'L', o carro se movimenta para esquerda.
+// Si el estado recibido es igual a 'L', el auto se mueve hacia la izquierda.
+  else if (state == 'L') {   
     analogWrite(motorA1, 0);
     analogWrite(motorA2, vSpeed);
     analogWrite(motorB1, vSpeed);
     analogWrite(motorB2, 0);
-  }
-  else if (state == 'R') {   // Se o estado recebido for igual a 'R', o carro se movimenta para direita.
+  // Si el estado recibido es igual a 'R', el auto se mueve hacia la derecha.}
+  else if (state == 'R') {   
     analogWrite(motorA1, vSpeed);
     analogWrite(motorA2, 0);
     analogWrite(motorB1, 0);
     analogWrite(motorB2, vSpeed);
   }
-  else if (state == 'S') {   // Se o estado recebido for igual a 'S', o carro permanece parado.
+  // Si el estado recibido es igual a 'S', el auto permanece parado.
+  else if (state == 'S') {   
     analogWrite(motorA1, 0);
     analogWrite(motorA2, 0);
     analogWrite(motorB1, 0);
     analogWrite(motorB2, 0);
   }
-
-
-  else if (state == 'V') { // Se o estado recebido for iguala 'V', aciona a buzina.
+// Si el estado recibido es igual a 'V', suena la bocina.
+  else if (state == 'V') { 
     if (j == 0) {
       tone(buzzer, 1000);
       j = 1;
